@@ -1,0 +1,20 @@
+
+user can create account if he have not one 
+
+we have 3 types of users : normal users , workers and admins 
+
+ normal users can: see books , buy book , borrow book , return book , show borrowed and bought books
+ 
+ workers can: add book , delete book , edit book 
+ 
+ admins: manage workers 
+ 
+books have : 
+
+	category ,id , name , name of the author , can buy , can borrow , number of copies , exist or not , price 
+	
+Shop cart : 
+	all the book the user want to buy or borrow 
+	check his order
+	pay the value of order 
+	delete something from the order. 
