@@ -1,94 +1,108 @@
-use book_system;
+DROP DATABASE IF EXISTS book_system;
+CREATE DATABASE book_system;
+USE book_system;
 
-create table user_authentication(
-    id       int auto_increment,
-    username varchar(50)  not null,
-    password varchar(100) not null,
-    enabled  tinyint      default 1,
-    primary key (id)
+CREATE TABLE user_authentication
+(
+    id       INT AUTO_INCREMENT,
+    username VARCHAR(50)  NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    enabled  TINYINT DEFAULT 1,
+    PRIMARY KEY (id)
 );
 
-create table authorities(
-    id        int auto_increment,
-    authority varchar(50),
-    user_id   int,
-    primary key (id),
-    foreign key (user_id) references user_authentication (id)
+CREATE TABLE authorities
+(
+    id        INT AUTO_INCREMENT,
+    authority VARCHAR(50),
+    user_id   INT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES user_authentication (id)
 );
 
-create table user_profile(
-    user_id      int auto_increment,
-    auth_user_id int          not null,
-    phone        varchar(15)  default '',
-    address      varchar(200) default '',
-    primary key (user_id),
-    foreign key (auth_user_id) references user_authentication (id)  
+CREATE TABLE user_profile
+(
+    user_id      INT AUTO_INCREMENT,
+    auth_user_id INT         NOT NULL,
+    first_name   VARCHAR(50),
+    last_name    VARCHAR(50),
+    phone        VARCHAR(15)  DEFAULT '',
+    address      VARCHAR(200) DEFAULT '',
+    PRIMARY KEY (user_id),
+    FOREIGN KEY (auth_user_id) REFERENCES user_authentication (id)
 );
 
-create table book(
-    id                   int auto_increment,
-    title                varchar(50) not null,
-    author               varchar(50) not null,
-    category             varchar(50) default 'general',
-    buy_price            double      default 0.0,
-    borrow_price_per_day double      default 0.0,             
-    can_buy              tinyint     default 0,
-    can_borrow           tinyint     default 0,
-    copies               int         default 0,
-    primary key (id)
+CREATE TABLE book
+(
+    id                   INT AUTO_INCREMENT,
+    title                VARCHAR(50)   NOT NULL,
+    author               VARCHAR(50)   NOT NULL,
+    category             VARCHAR(50)   DEFAULT 'general',
+    buy_price            DECIMAL(10,2) DEFAULT 0.00,
+    borrow_price_per_day DECIMAL(10,2) DEFAULT 0.00,
+    can_buy              BOOLEAN       DEFAULT FALSE,
+    can_borrow           BOOLEAN       DEFAULT FALSE,
+    copies               INT UNSIGNED  DEFAULT 0,
+    `year`               YEAR          NOT NULL,
+    PRIMARY KEY (id)
 );
 
-create table borrowed_book(
-    id           int auto_increment,
-    user_id      int,
-    book_id      int,
-    borrow_price double,
-    borrow_date  date,
-    due_date     date,
-    return_date  date,
-    status       ENUM('BORROWED','RETURNED','LATE'),           
-    primary key (id),
-    foreign key (user_id) references user_profile (user_id),
-    foreign key (book_id) references book (id)
+CREATE TABLE borrowed_book
+(
+    id           INT AUTO_INCREMENT,
+    user_id      INT,
+    book_id      INT,
+    borrow_price DECIMAL(10,2),
+    borrow_date  DATE,
+    due_date     DATE,
+    return_date  DATE,
+    status       ENUM ('BORROWED','RETURNED','LATE'),
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES user_profile (user_id),
+    FOREIGN KEY (book_id) REFERENCES book (id)
 );
 
-create table cart(
-    id      int auto_increment,
-    user_id int,
-    primary key (id),
-    foreign key (user_id) references user_profile (user_id)
+CREATE TABLE cart
+(
+    id      INT AUTO_INCREMENT,
+    user_id INT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES user_profile (user_id)
 );
 
-create table cart_item(
-    id       int auto_increment,
-    book_id  int,
-    cart_id  int,
-    type     ENUM('BUY','BORROW'),                             
-    quantity int,
-    primary key (id),
-    foreign key (book_id) references book (id),
-    foreign key (cart_id) references cart (id)
+CREATE TABLE cart_item
+(
+    id       INT AUTO_INCREMENT,
+    book_id  INT,
+    cart_id  INT,
+    type     ENUM ('BUY','BORROW'),
+    quantity INT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (book_id) REFERENCES book (id),
+    FOREIGN KEY (cart_id) REFERENCES cart (id)
 );
 
-create table `order`(
-    id          int auto_increment,
-    user_id     int,
-    total_price double,
-    status      ENUM('PENDING','CONFIRMED','SHIPPED',
-                     'DELIVERED','CANCELLED'),                  
-    created_at  date,
-    address     varchar(100),
-    primary key (id),
-    foreign key (user_id) references user_profile (user_id)
+CREATE TABLE `order`
+(
+    id          INT AUTO_INCREMENT,
+    user_id     INT,
+    total_price DECIMAL(10,2),
+    status      ENUM ('PENDING','CONFIRMED','SHIPPED','DELIVERED','CANCELLED'),
+    created_at  DATE,
+    updated_at  DATE,
+    address     VARCHAR(100),
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES user_profile (user_id)
 );
 
-create table order_item(
-    id       int auto_increment,
-    order_id int,
-    book_id  int,
-    quantity int,
-    price    double,
-    primary key (id),
-    foreign key (order_id) references `order` (id),
-    foreign key (book_id) references book (id)
+CREATE TABLE order_item
+(
+    id       INT AUTO_INCREMENT,
+    order_id INT,
+    book_id  INT,
+    quantity INT,
+    price    DECIMAL(10,2),
+    PRIMARY KEY (id),
+    FOREIGN KEY (order_id) REFERENCES `order` (id),
+    FOREIGN KEY (book_id) REFERENCES book (id)
 );
