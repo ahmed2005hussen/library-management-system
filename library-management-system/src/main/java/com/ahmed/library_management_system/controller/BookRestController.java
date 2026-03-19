@@ -2,7 +2,10 @@ package com.ahmed.library_management_system.controller;
 
 import com.ahmed.library_management_system.entity.Book;
 import com.ahmed.library_management_system.service.BookService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,10 +23,12 @@ public class BookRestController {
     }
 
     @PostMapping
-    public Book addBook(@RequestBody Book book){
-        return bookService.addBook(book);
+    public ResponseEntity<Book> addBook(@Valid @RequestBody Book book){
+        Book savedBook = bookService.addBook(book);
 
+        return ResponseEntity.status(201).body(savedBook);
     }
+
 
     // code -> DAO -> service -> rest
 

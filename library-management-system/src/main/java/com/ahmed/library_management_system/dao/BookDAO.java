@@ -6,6 +6,6 @@ public interface BookDAO {
 
     Book addBook(Book book);
 
-
+    Book findByIsbn(String isbn);
 
 }

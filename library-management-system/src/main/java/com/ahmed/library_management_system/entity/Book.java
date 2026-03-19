@@ -1,6 +1,10 @@
 package com.ahmed.library_management_system.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.time.Year;
 
@@ -12,19 +16,28 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "isbn", unique = true)
+    @NotBlank(message = "ISBN can not be empty ")
+    @Size(min = 13, max = 17, message = "ISBN must be exactly  13 characters ")
+    String isbn;
+
     @Column(name = "title")
+    @NotBlank(message = "Title can not be empty")
     private String title;
 
     @Column(name = "author")
+    @NotBlank(message = "Author can not be empty")
     private String author;
 
     @Column(name = "category")
     private String category;
 
     @Column(name = "buy_price")
+    @Min(value = 0, message = "Price can not be negative")
     private double buyPrice;
 
     @Column(name = "borrow_price_per_day")
+    @Min(value = 0, message = "Price can not be negative")
     private double borrowPricePerDay;
 
     @Column(name = "can_buy")
@@ -34,6 +47,7 @@ public class Book {
     private boolean canBorrow;
 
     @Column(name = "copies")
+    @Min(value = 0, message = "Copies can not be negative")
     private int copies;
 
     @Column(name = "year")
@@ -41,13 +55,14 @@ public class Book {
     private Year year;
 
     // for data binding
-    public Book(){}
+    public Book() {
+    }
 
 
-    public Book(String title, String author, String category, double buyPrice,
+    public Book(String isbn, String title, String author, String category, double buyPrice,
                 double borrowPricePerDay, boolean canBuy, boolean canBorrow,
                 int copies, Year year) {
-
+        this.isbn = isbn;
         this.title = title;
         this.author = author;
         this.category = category;
@@ -141,11 +156,20 @@ public class Book {
         this.year = year;
     }
 
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
     // for testing
     @Override
     public String toString() {
         return "Book{" +
                 "id=" + id +
+                ", isbn='" + isbn + '\'' +
                 ", title='" + title + '\'' +
                 ", author='" + author + '\'' +
                 ", category='" + category + '\'' +

@@ -35,6 +35,7 @@ CREATE TABLE user_profile
 CREATE TABLE book
 (
     id                   INT AUTO_INCREMENT,
+    isbn				 VARCHAR(13)   NOT NULL UNIQUE,
     title                VARCHAR(50)   NOT NULL,
     author               VARCHAR(50)   NOT NULL,
     category             VARCHAR(50)   DEFAULT 'general',
