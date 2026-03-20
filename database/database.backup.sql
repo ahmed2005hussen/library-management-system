@@ -12,32 +12,30 @@ CREATE TABLE user_authentication
 );
 
 CREATE TABLE authorities
-(
-    id        INT AUTO_INCREMENT,
-    authority VARCHAR(50),
-    user_id   INT,
-    PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES user_authentication (id)
+(   
+    user_id   INT NOT NULL,
+    authority VARCHAR(50) NOT NULL,
+    PRIMARY KEY (user_id , authority),
+    FOREIGN KEY (user_id) REFERENCES user_authentication (id) ON DELETE CASCADE
 );
 
 CREATE TABLE user_profile
 (
-    user_id      INT AUTO_INCREMENT,
-    auth_user_id INT         NOT NULL,
+    user_id INT,
     first_name   VARCHAR(50),
     last_name    VARCHAR(50),
     phone        VARCHAR(15)  DEFAULT '',
     address      VARCHAR(200) DEFAULT '',
     PRIMARY KEY (user_id),
-    FOREIGN KEY (auth_user_id) REFERENCES user_authentication (id)
+    FOREIGN KEY (user_id) REFERENCES user_authentication (id) ON DELETE CASCADE
 );
 
 CREATE TABLE book
 (
     id                   INT AUTO_INCREMENT,
-    isbn				 VARCHAR(13)   NOT NULL UNIQUE,
-    title                VARCHAR(50)   NOT NULL,
-    author               VARCHAR(50)   NOT NULL,
+    isbn                 VARCHAR(13)   NOT NULL UNIQUE,
+    title                VARCHAR(100)  NOT NULL,
+    author               VARCHAR(100)  NOT NULL,
     category             VARCHAR(50)   DEFAULT 'general',
     buy_price            DECIMAL(10,2) DEFAULT 0.00,
     borrow_price_per_day DECIMAL(10,2) DEFAULT 0.00,
@@ -51,24 +49,24 @@ CREATE TABLE book
 CREATE TABLE borrowed_book
 (
     id           INT AUTO_INCREMENT,
-    user_id      INT,
-    book_id      INT,
+    user_id      INT NOT NULL,
+    book_id      INT NOT NULL,
     borrow_price DECIMAL(10,2),
     borrow_date  DATE,
     due_date     DATE,
     return_date  DATE,
-    status       ENUM ('BORROWED','RETURNED','LATE'),
+    status       ENUM ('BORROWED','RETURNED','LATE') DEFAULT 'BORROWED',
     PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES user_profile (user_id),
-    FOREIGN KEY (book_id) REFERENCES book (id)
+    FOREIGN KEY (user_id) REFERENCES user_profile (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES book (id) ON DELETE CASCADE
 );
 
 CREATE TABLE cart
 (
     id      INT AUTO_INCREMENT,
-    user_id INT,
+    user_id INT UNIQUE,
     PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES user_profile (user_id)
+    FOREIGN KEY (user_id) REFERENCES user_profile (user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE cart_item
@@ -79,21 +77,22 @@ CREATE TABLE cart_item
     type     ENUM ('BUY','BORROW'),
     quantity INT,
     PRIMARY KEY (id),
-    FOREIGN KEY (book_id) REFERENCES book (id),
-    FOREIGN KEY (cart_id) REFERENCES cart (id)
+    UNIQUE (cart_id, book_id, type),
+    FOREIGN KEY (book_id) REFERENCES book (id) ON DELETE CASCADE,
+    FOREIGN KEY (cart_id) REFERENCES cart (id) ON DELETE CASCADE
 );
 
-CREATE TABLE `order`
+CREATE TABLE orders
 (
     id          INT AUTO_INCREMENT,
     user_id     INT,
     total_price DECIMAL(10,2),
     status      ENUM ('PENDING','CONFIRMED','SHIPPED','DELIVERED','CANCELLED'),
-    created_at  DATE,
-    updated_at  DATE,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     address     VARCHAR(100),
     PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES user_profile (user_id)
+    FOREIGN KEY (user_id) REFERENCES user_profile (user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE order_item
@@ -104,6 +103,12 @@ CREATE TABLE order_item
     quantity INT,
     price    DECIMAL(10,2),
     PRIMARY KEY (id),
-    FOREIGN KEY (order_id) REFERENCES `order` (id),
-    FOREIGN KEY (book_id) REFERENCES book (id)
+    FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES book (id) ON DELETE CASCADE
 );
+
+INSERT INTO user_authentication (username, password, enabled) 
+VALUES ('ahmed', '$2a$10$DbzGzXexIw6CcTxCpcy5heQIvWn.CnKIFikv1HiOMqxH7539BpJdC', 1);
+
+INSERT INTO authorities (user_id, authority) 
+VALUES (1, 'ROLE_ADMIN');

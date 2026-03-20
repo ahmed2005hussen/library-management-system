@@ -5,6 +5,9 @@ target/
 !**/src/test/**/target/
 **/src/main/resources/application-local.yaml
 
+backup/
+
+
 ### STS ###
 .apt_generated
 .classpath
